@@ -43,8 +43,7 @@ type MarketItem @entity {
   swaps: [Swap!] @derivedFrom(field: "item")
   bids: [Bid!] @derivedFrom(field: "item")
   offers: [Offer!] @derivedFrom(field: "item")
-  trades: [Trade!] @derivedFrom(field: "item")
-  tradeItem: [Trade!] @derivedFrom(field: "tradeItem")
+  trades: [Trade!] @derivedFrom(field: "tradeFor")
 }
 
 enum NFTType {
@@ -95,13 +94,6 @@ type Swap @entity {
   amount1155: BigInt!
 }
 
-type RedemptionToken @entity{
-  id: ID!
-  redeemId: BigInt!
-  amount: BigInt!
-  token: Token!
-}
-
 type MintEvent @entity {
   id: ID! # minter + nftId
   date: String!
@@ -109,7 +101,7 @@ type MintEvent @entity {
   minter: User!
   nftId: BigInt!
   value: BigInt
-  redemptionToken: BigInt!
+  redemptionToken: Token
 }
 
 type Offer @entity {
@@ -125,7 +117,7 @@ type Offer @entity {
   amount: BigInt!
   active: Boolean!
   accepted: Boolean!
-  receiver: User!
+  receiver: User
 }
 
 type Bid @entity {
@@ -140,7 +132,7 @@ type Bid @entity {
   isSpecific: Boolean! # bool
   active: Boolean!
   accepted: Boolean!
-  receiver: User
+  receiver: User!
 }
 
 type Trade @entity {
@@ -148,14 +140,14 @@ type Trade @entity {
   type: OrderType!
   date: String!
   block: BigInt!
-  item: MarketItem!
-  tradeItem: MarketItem!
+  tradeWith: MarketItem!
+  tradeFor: MarketItem!
   tradeId : BigInt!
   trader: User!
   isSpecific: Boolean! # bool
   active: Boolean!
   accepted: Boolean!
-  receiver: User
+  receiver: User!
 }
 
 enum RewardType {
@@ -189,6 +181,7 @@ type RewardsUser @entity {
   id: ID! #address
   user: User!
   userId: BigInt!
+  count: BigInt!
   type: RewardType!
   createdAt: String!
   blockCreated: BigInt!
