@@ -185,50 +185,50 @@ export function handleTokensReceived(event: TokensReceived): void {
 var ONE_DAY = BigInt.fromI32(SECS_PER_DAY);
 var ONE_HOUR = BigInt.fromI32(SECS_PER_HOUR);
 
-export function handleBlock(block: ethereum.Block): void {
-  let date = getDateString(block.timestamp);
-  let time = getTimeString(block.timestamp);
-  let day = getRewardsDayData(block.timestamp);
+// export function handleBlock(block: ethereum.Block): void {
+//   let date = getDateString(block.timestamp);
+//   let time = getTimeString(block.timestamp);
+//   let day = getRewardsDayData(block.timestamp);
 
-  if(!day){
-    day = new RewardsDayData(date);
-    day.date = block.timestamp;
-  }
+//   if(!day){
+//     day = new RewardsDayData(date);
+//     day.date = block.timestamp;
+//   }
 
-  let hour = getRewardsHourData(block.timestamp);
-  let eth = getEthStats(dataSource.address());
-  let users = getUserStats(dataSource.address());
-  let tokens = getTokenLength(dataSource.address());
-  let devs = getDevStats(dataSource.address());
+//   let hour = getRewardsHourData(block.timestamp);
+//   let eth = getEthStats(dataSource.address());
+//   let users = getUserStats(dataSource.address());
+//   let tokens = getTokenLength(dataSource.address());
+//   let devs = getDevStats(dataSource.address());
 
-  day.totalUsers = users;
-  day.totalEth = eth;
-  day.totalTokens = tokens;
-  day.totalDevs = devs;
-  let alpha = getUserRewards(users, eth, "alpha");
-  day.userClaimAlpha = alpha;
-  let delta = getUserRewards(users, eth, "delta");
-  day.userClaimDelta = delta;
-  let omega = getUserRewards(users, eth, "omega");
-  day.userClaimOmega = omega;
-  let devClaim = getDevRewards(devs, eth);
-  day.devClaim = devClaim;
-  let daoClaim = getDaoRewards(eth);
-  day.daoClaim = daoClaim;
+//   day.totalUsers = users;
+//   day.totalEth = eth;
+//   day.totalTokens = tokens;
+//   day.totalDevs = devs;
+//   let alpha = getUserRewards(users, eth, "alpha");
+//   day.userClaimAlpha = alpha;
+//   let delta = getUserRewards(users, eth, "delta");
+//   day.userClaimDelta = delta;
+//   let omega = getUserRewards(users, eth, "omega");
+//   day.userClaimOmega = omega;
+//   let devClaim = getDevRewards(devs, eth);
+//   day.devClaim = devClaim;
+//   let daoClaim = getDaoRewards(eth);
+//   day.daoClaim = daoClaim;
 
-  if(!hour){
-    hour = new RewardsHourData(time);
-    hour.date = block.timestamp;
-    hour.totalUsers = users;
-    hour.totalEth = eth;
-    hour.totalTokens = tokens;
-    hour.totalDevs = devs;
-    hour.userClaimAlpha = alpha;
-    hour.userClaimDelta = delta;
-    hour.userClaimOmega = omega;
-    hour.devClaim = devClaim;
-    hour.daoClaim = daoClaim;
-  }
-  day.save();
-  hour.save();
-}
+//   if(!hour){
+//     hour = new RewardsHourData(time);
+//     hour.date = block.timestamp;
+//     hour.totalUsers = users;
+//     hour.totalEth = eth;
+//     hour.totalTokens = tokens;
+//     hour.totalDevs = devs;
+//     hour.userClaimAlpha = alpha;
+//     hour.userClaimDelta = delta;
+//     hour.userClaimOmega = omega;
+//     hour.devClaim = devClaim;
+//     hour.daoClaim = daoClaim;
+//   }
+//   day.save();
+//   hour.save();
+// }
