@@ -54,14 +54,15 @@ export function handleTradeEntered(event: TradeEntered): void {
   }
   user.save();
 
-  let tradeId = event.params.trader.toHexString().concat(event.params.tradeId.toHexString()).concat("_trades");
+  let tradeId = event.params.trader.toHexString().concat(event.params.tradeId.toHex()).concat("_trades");
   let trade = new Trade(tradeId);
   
   trade.type = "listed";
   trade.date = date;
   trade.block = event.block.timestamp;
-  let itemId = event.params.trader.toHexString().concat(event.params.itemId.toHexString()).concat("_trades");
-  trade.item = itemId;
+  let itemId = event.params.trader.toHexString().concat(event.params.itemId.toHex()).concat("_trades");
+  trade.tradeWith = itemId;
+  trade.tradeFor = itemId;
 
   let marketItem = new MarketItem(itemId);
   marketItem.block = event.block.timestamp;
@@ -72,7 +73,7 @@ export function handleTradeEntered(event: TradeEntered): void {
 
   
 
-  let dataId = event.params.nftCont.toHexString().concat("_").concat(event.params.tokenId.toHexString());
+  let dataId = event.params.nftCont.toHexString().concat("_").concat(event.params.tokenId.toHex());
   let nft = new NFT(dataId);
   nft.token_address = event.params.nftCont;
   nft.token_id = event.params.tokenId;
@@ -149,24 +150,33 @@ export function handleBlindTradeEntered(event: BlindTradeEntered): void {
   }
   stats.count = stats.count + BigInt.fromI32(1);
 
-  let tradeId = event.params.trader.toHexString().concat(event.params.tradeId.toHexString()).concat("_blindTrades");
+  let tradeId = event.params.trader.toHexString().concat(event.params.tradeId.toHex()).concat("_blindTrades");
   let trade = new Trade(tradeId);
   
   trade.type = "blind";
   trade.date = date;
   trade.block = event.block.timestamp;
-  let itemId = event.params.trader.toHexString().concat(event.params.tradeId.toHexString()).concat("_blindTrades");
-  trade.item = itemId;
 
-  let marketItem = new MarketItem(itemId);
+  let wantedId = event.params.trader.toHexString().concat(event.params.wantedId.toHex()).concat("_blindTradesWanted");
+  let givenId = event.params.trader.toHexString().concat(event.params.wantedId.toHex()).concat("_blindTradesWanted");
+  trade.tradeFor = wantedId;
+  trade.tradeWith = givenId;
 
-  marketItem.block = event.block.timestamp;
-  marketItem.date = date;
-  marketItem.itemId = event.params.tradeId;
-  marketItem.active = true;
-  marketItem.amount1155 = event.params.amount1155;
+  trade.active = true;
+  trade.accepted = false;
+  trade.trader = event.params.trader.toString();
+  trade.tradeId = event.params.tradeId;
+  trade.isSpecific = event.params.isSpecific;
+  trade.save()
 
-  let dataId = event.params.nftCont.toHexString().concat("_").concat(event.params.tokenId.toHexString());
+  let givenItem = new MarketItem(givenId);
+  givenItem.block = event.block.timestamp;
+  givenItem.date = date;
+  givenItem.itemId = event.params.tradeId;
+  givenItem.active = true;
+  givenItem.amount1155 = event.params.amount1155;
+
+  let dataId = event.params.nftCont.toHexString().concat("_").concat(event.params.tokenId.toHex());
   let nft = NFT.load(dataId);
   if(!nft){
     nft = new NFT(dataId);
@@ -212,12 +222,12 @@ export function handleBlindTradeEntered(event: BlindTradeEntered): void {
     }
     metadata.save();
   }
-  marketItem.nft = dataId;
-  marketItem.save();
+  givenItem.nft = dataId;
+  givenItem.save();
   nft.save();
 
 
-  let wantedItem = new MarketItem(itemId);
+  let wantedItem = new MarketItem(wantedId);
 
   wantedItem.block = event.block.timestamp;
   wantedItem.date = date;
@@ -225,7 +235,7 @@ export function handleBlindTradeEntered(event: BlindTradeEntered): void {
   wantedItem.active = true;
   wantedItem.amount1155 = event.params.amount1155;
 
-  let tradeDataId = event.params.wantCont.toHexString().concat("_").concat(event.params.wantedId.toHexString());
+  let tradeDataId = event.params.wantCont.toHexString().concat("_").concat(event.params.wantedId.toHex());
   let tradenft = new NFT(tradeDataId);
 
   tradenft.token_address = event.params.nftCont;
@@ -273,43 +283,31 @@ export function handleBlindTradeEntered(event: BlindTradeEntered): void {
   wantedItem.nft = tradeDataId;
   wantedItem.save();
   tradenft.save();
-  
-  trade.type = "blind";
-  trade.block = event.block.timestamp;
-  trade.date = date;
-
-  trade.active = true;
-  trade.accepted = false;
-  trade.trader = event.params.trader.toString();
-  trade.tradeId = event.params.tradeId;
-  trade.isSpecific = event.params.isSpecific;
-
-  trade.save()
 }
 
 export function handleTradeAccepted(event: TradeAccepted): void {
-  let tradeId = event.params.trader.toHexString().concat(event.params.tradeId.toHexString()).concat("_trades");
+  let tradeId = event.params.trader.toHexString().concat(event.params.tradeId.toHex()).concat("_trades");
   let trade = new Trade(tradeId);
   trade.active = false;
   trade.accepted = true;
 }
 
 export function handleBlindTradeAccepted(event: BlindTradeAccepted): void {
-  let tradeId = event.params.trader.toHexString().concat(event.params.tradeId.toHexString()).concat("_blindTrades");
+  let tradeId = event.params.trader.toHexString().concat(event.params.tradeId.toHex()).concat("_blindTrades");
   let trade = new Trade(tradeId);
   trade.active = false;
   trade.accepted = true;
 }
 
 export function handleTradeUpdated(event: TradeUpdated): void {
-  let tradeId = event.params.trader.toHexString().concat(event.params.tradeId.toHexString()).concat("_trades");
+  let tradeId = event.params.trader.toHexString().concat(event.params.tradeId.toHex()).concat("_trades");
   let trade = new Trade(tradeId);
   trade.active = true;
   trade.accepted = false;
 }
 
 export function handleTradeWithdrawn(event: TradeWithdrawn): void {
-  let tradeId = event.params.trader.toHexString().concat(event.params.tradeId.toHexString()).concat("_trades");
+  let tradeId = event.params.trader.toHexString().concat(event.params.tradeId.toHex()).concat("_trades");
   let trade = new Trade(tradeId);
   trade.active = false;
   trade.accepted = false;
