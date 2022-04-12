@@ -31,12 +31,12 @@ export function handleBidEntered(event: BidEntered): void {
   
   let date = getTimeString(event.block.timestamp);
   // Load in Bid
-  let bidId = event.params.bidder.toHexString().concat(event.params.bidId.toHexString()).concat("_bids");
+  let bidId = event.params.bidder.toHexString().concat(event.params.bidId.toHex()).concat("_bids");
   let bid = new Bid(bidId);
   bid.type = "listed";
   bid.date = date;
   bid.block = event.block.timestamp;
-  bid.item = event.params.seller.toHexString().concat(event.params.itemId.toHexString());
+  bid.item = event.params.seller.toHexString().concat("_").concat(event.params.itemId.toHex());
   bid.bidId = event.params.bidId;
   let userAddress = event.params.bidder.toHexString();
   let user = User.load(userAddress);
@@ -63,7 +63,7 @@ export function handleBidEntered(event: BidEntered): void {
 }
 
 export function handleBidAccepted(event: BidAccepted): void {
-  let bidId = event.params.bidder.toString().concat(event.params.bidId.toString()).concat("_bids");
+  let bidId = event.params.bidder.toHexString().concat(event.params.bidId.toHex()).concat("_bids");
   let bid = new Bid(bidId);
   bid.active = false;
   bid.accepted = true;
@@ -71,7 +71,7 @@ export function handleBidAccepted(event: BidAccepted): void {
 }
 
 export function handleBidWithdrawn(event: BidWithdrawn): void {  
-  let bidId = event.params.bidder.toString().concat(event.params.bidId.toString()).concat("_bids");
+  let bidId = event.params.bidder.toHexString().concat(event.params.bidId.toHex()).concat("_bids");
   let bid = new Bid(bidId)
   bid.active = false;
   bid.accepted = false;
@@ -113,7 +113,7 @@ export function handleBlindBidentered(event: BlindBidentered): void {
   }
   user.save();
 
-  let itemId = userAddress.concat("_").concat(event.params.blindBidId.toHexString()).concat("_blindBids");
+  let itemId = userAddress.concat("_").concat(event.params.blindBidId.toHex()).concat("_blindBids");
 
   let marketItem = new MarketItem(itemId);
   marketItem.block = event.block.timestamp;
@@ -123,7 +123,7 @@ export function handleBlindBidentered(event: BlindBidentered): void {
   marketItem.type = "blindBids";
   marketItem.amount1155 = event.params.amount1155;
 
-  let dataId = event.params.collectionBid.toHexString().concat("_").concat(event.params.tokenId.toHexString());
+  let dataId = event.params.collectionBid.toHexString().concat("_").concat(event.params.tokenId.toHex());
   let nft = NFT.load(dataId);
   if(!nft){
     nft = new NFT(dataId);
@@ -148,20 +148,10 @@ export function handleBlindBidentered(event: BlindBidentered): void {
   bid.active = true;
   bid.accepted = false;
   bid.save();
-  
-  let item = new MarketItem(itemId);
-  item.block = event.block.timestamp;
-  item.date = date;
-  item.active = true;
-  item.user = event.transaction.from.toHexString();
-  item.nft = event.params.collectionBid.toHexString().concat(event.params.tokenId.toHexString());
-  item.itemId = event.params.blindBidId;
-  item.amount1155 = event.params.amount1155;
-  item.save();
 }
 
 export function handleBlindBidAccepted(event: BlindBidAccepted): void {
-  let bidId = event.params.bidder.toHexString().concat(event.params.blindBidId.toHexString()).concat("_blindBids");
+  let bidId = event.params.bidder.toHexString().concat(event.params.blindBidId.toHex()).concat("_blindBids");
   let bid = new Bid(bidId);
   bid.active = false;
   bid.accepted = true;
@@ -169,7 +159,7 @@ export function handleBlindBidAccepted(event: BlindBidAccepted): void {
 }
 
 export function handleBlindBidWithdrawn(event: BlindBidWithdrawn): void {
-  let bidId = event.params.bidder.toHexString().concat(event.params.blindBidId.toHexString()).concat("_blindBids");
+  let bidId = event.params.bidder.toHexString().concat(event.params.blindBidId.toHex()).concat("_blindBids");
   let bid = new Bid(bidId);
   bid.active = false;
   bid.accepted = false;
@@ -177,7 +167,7 @@ export function handleBlindBidWithdrawn(event: BlindBidWithdrawn): void {
 }
 
 export function handleBidRefunded(event: BidRefunded): void {
-  let bidId = event.params.bidder.toHexString().concat(event.params.bidId.toHexString()).concat("_blindBids");
+  let bidId = event.params.bidder.toHexString().concat(event.params.bidId.toHex()).concat("_blindBids");
   let bid = new Bid(bidId);
   bid.active = false;
   bid.accepted = false;
