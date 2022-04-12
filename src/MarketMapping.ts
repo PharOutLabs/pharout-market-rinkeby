@@ -8,7 +8,7 @@ import {
 import { Stats, User, MarketItem, NFT, Swap, Metadata } from "../generated/schema"
 import { ERC721 } from "../generated/NFTMarket/ERC721";
 import { ERC1155 } from "../generated/NFTMarket/ERC1155";
-import { getDateString, getTimeString } from './helpers/datetime';
+import { getTimeString } from './helpers/datetime';
 
 export function handleItemListed(event: ItemListed): void {
 
@@ -39,10 +39,11 @@ export function handleItemListed(event: ItemListed): void {
     user.block = event.block.timestamp;
     user.date = date;
   }
+  listing_stats.save();
   user_stats.save();
   user.save();
 
-  let itemId = userAddress.concat("_").concat(event.params.itemId.toHexString()).concat("_listings");
+  let itemId = userAddress.concat("_").concat(event.params.itemId.toHex());
 
   let marketItem = new MarketItem(itemId);
   marketItem.block = event.block.timestamp;
@@ -52,10 +53,10 @@ export function handleItemListed(event: ItemListed): void {
   marketItem.type = "listings";
   marketItem.amount1155 = event.params.amount1155;
   marketItem.price = event.params.price;
-
+  marketItem.user = userAddress;
   
 
-  let dataId = event.params.nftContract.toHexString().concat("_").concat(event.params.tokenId.toHexString());
+  let dataId = event.params.nftContract.toHexString().concat("_").concat(event.params.tokenId.toHex());
   let nft = NFT.load(dataId);
   if(!nft){
     nft = new NFT(dataId);
@@ -102,6 +103,7 @@ export function handleItemListed(event: ItemListed): void {
     if(!symbol.reverted){
       metadata.symbol = symbol.value;
     }
+    metadata.nft = dataId;
     metadata.save();
   }
 }
@@ -125,12 +127,15 @@ export function handleItemBought(event: ItemBought): void {
   swap.type = "listed";
   let userAddress = event.params.fromAddress.toHexString();
   let user = User.load(userAddress);
-  if (user == null) {
+  if(!user) {
     user = new User(userAddress);
   }
   swap.buyer = user.id;
-  let marketId = event.params.fromAddress.toHexString().concat("_").concat(event.params.nftContract.toHexString()).concat("_").concat(event.params.itemId.toHexString());
+  let marketId = userAddress.concat("_").concat(event.params.itemId.toHex());
   let marketItem = new MarketItem(marketId);
+  marketItem.active = false;
+  marketItem.user = userAddress;
+  marketItem.save();
 
   swap.item = marketItem.id;
   swap.value = event.transaction.value;
@@ -139,14 +144,14 @@ export function handleItemBought(event: ItemBought): void {
 }
 
 export function handleItemDelisted(event: ItemDelisted): void {
-  let marketId = event.transaction.from.toHexString().concat("_").concat(event.params.nftContract.toHexString()).concat("_").concat(event.params.itemId.toHexString());
+  let marketId = event.transaction.from.toHexString().concat("_").concat(event.params.itemId.toHex());
   let marketItem = new MarketItem(marketId);
   marketItem.active = false;
   marketItem.save();
 }
 
 export function handleItemUpdated(event: ItemUpdated): void {
-  let marketId = event.transaction.from.toHexString().concat("_").concat(event.params.nftContract.toHexString()).concat("_").concat(event.params.itemId.toHexString());
+  let marketId = event.transaction.from.toHexString().concat("_").concat(event.params.itemId.toHex());
   let marketItem = new MarketItem(marketId);
   marketItem.price = event.params.price;
   marketItem.save();
