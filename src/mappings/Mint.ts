@@ -3,7 +3,7 @@ import {
   nftClaimed,
   RedeemTokenSet
 } from "../../generated/Mint/Mint"
-import { NFT, Metadata, MintEvent, Token, RedemptionToken } from "../../generated/schema"
+import { NFT, Metadata, MintEvent, Token } from "../../generated/schema"
 import { getTimeString } from "../helpers/datetime";
 import { ERC20 } from "../../generated/MarketOffers/ERC20";
 import { PhamNFTs } from "../../generated/Mint/PhamNFTs";
@@ -23,18 +23,18 @@ export function handlenftClaimed(event: nftClaimed): void {
   mint.value = event.transaction.value;
   let nftContract = PhamNFTs.bind(Address.fromString("0xd8b6bfEbB1F4FFBb73DbB07896295fAd3701E3Af"));
 
-  let nft = NFT.load("0xd8b6bfEbB1F4FFBb73DbB07896295fAd3701E3Af" + event.params.nftId.toString());
+  let nft = NFT.load("0xd8b6bfEbB1F4FFBb73DbB07896295fAd3701E3Af" + event.params.nftId.toHex());
   if(!nft){
-    nft = new NFT("0xd8b6bfEbB1F4FFBb73DbB07896295fAd3701E3Af" + event.params.nftId.toString());
+    nft = new NFT("0xd8b6bfEbB1F4FFBb73DbB07896295fAd3701E3Af" + event.params.nftId.toHex());
   }
   nft.contract_type = "ERC721";
   nft.token_address = nftContract._address;
   nft.token_id = event.params.nftId;
   nft.owner_of = event.params.creator;
   
-  let metadata = Metadata.load("0xd8b6bfEbB1F4FFBb73DbB07896295fAd3701E3Af"+event.params.nftId.toString());
+  let metadata = Metadata.load("0xd8b6bfEbB1F4FFBb73DbB07896295fAd3701E3Af"+event.params.nftId.toHex());
   if(!metadata){
-    metadata = new Metadata("0xd8b6bfEbB1F4FFBb73DbB07896295fAd3701E3Af"+event.params.nftId.toString());
+    metadata = new Metadata("0xd8b6bfEbB1F4FFBb73DbB07896295fAd3701E3Af"+event.params.nftId.toHex());
   }
   let uri = nftContract.try_tokenURI(event.params.nftId);
   if(!uri.reverted){
@@ -49,9 +49,7 @@ export function handlenftClaimed(event: nftClaimed): void {
     metadata.symbol = symbol.value;
   }
   metadata.nft = nft.id;
-  metadata.save();  
-
-  mint.redemptionToken = event.params.redeemId;
+  metadata.save();
 
   mint.save();
   nft.save();
@@ -76,10 +74,4 @@ export function handleRedeemTokenSet(event: RedeemTokenSet): void{
     token.decimals = BigInt.fromI32(decimals.value);
   }
   token.save();
-  let redeemId = event.params.contractAddress.toHexString();
-  let redemption = new RedemptionToken(redeemId);
-  redemption.redeemId = event.params.redeemId;
-  redemption.amount = event.params.amount;
-  redemption.token = tokenId;
-  redemption.save();
 } 
