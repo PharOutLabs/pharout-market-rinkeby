@@ -43,7 +43,7 @@ type MarketItem @entity {
   swaps: [Swap!] @derivedFrom(field: "item")
   bids: [Bid!] @derivedFrom(field: "item")
   offers: [Offer!] @derivedFrom(field: "item")
-  trades: [Trade!] @derivedFrom(field: "item")
+  trades: [Trade!] @derivedFrom(field: "tradeFor")
 }
 
 enum NFTType {
@@ -61,7 +61,7 @@ type Metadata @entity {
 
 type NFT @entity {
   id: ID! #token_address + token_id
-  contract_type: NFT!
+  contract_type: NFTType!
   token_address: Bytes!
   token_id: BigInt!
   owner_of: Bytes
