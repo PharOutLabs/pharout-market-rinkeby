@@ -40,7 +40,7 @@ export function handleOffered(event: Offered): void {
     user_stats.save();
   }
   user.save();
-  let offerId = event.params.offerer.toHexString().concat(event.params.offerId.toHexString()).concat("_offers");
+  let offerId = event.params.offerer.toHexString().concat(event.params.offerId.toHex()).concat("_offers");
   let offer = Offer.load(offerId);
   if (!offer) {
     offer = new Offer(offerId);
@@ -48,7 +48,7 @@ export function handleOffered(event: Offered): void {
   offer.type = "listed";
   offer.date = date;
   offer.block = event.block.timestamp;
-  let itemId = event.params.seller.toHexString().concat("_").concat(event.params.offerId.toHexString());
+  let itemId = event.params.seller.toHexString().concat("_").concat(event.params.itemId.toHex());
   offer.item = itemId;
   offer.offerId = event.params.offerId;
   offer.offerer = userId;
@@ -83,7 +83,7 @@ export function handleOffered(event: Offered): void {
 }
 
 export function handleOfferWithdrawn(event: OfferWithdrawn): void {
-  let offerId = event.params.offerer.toHexString().concat(event.params.offerId.toHexString()).concat("_offers");
+  let offerId = event.params.offerer.toHexString().concat(event.params.offerId.toHex()).concat("_offers");
   let offer = new Offer(offerId);
   offer.active = true;
   offer.accepted = false;
@@ -96,7 +96,7 @@ export function handleBlindOffered(event: BlindOffered): void {
   let stats = Stats.load("offer_stats");
   if(!stats){
     stats = new Stats("offer_stats");
-    stats.type = "offers";
+    stats.type = "blindOffers";
     stats.count = BigInt.fromI32(0)
   }
   stats.count = stats.count + BigInt.fromI32(1);
@@ -119,7 +119,7 @@ export function handleBlindOffered(event: BlindOffered): void {
   }
   user.save();
 
-  let offerId = event.params.offerer.toHexString().concat(event.params.offerId.toHexString()).concat("_blindOffers");
+  let offerId = event.params.offerer.toHexString().concat(event.params.offerId.toHex()).concat("_blindOffers");
   let offer = new Offer(offerId);
   offer.type = "blind";
   offer.date = date;
@@ -127,7 +127,7 @@ export function handleBlindOffered(event: BlindOffered): void {
   offer.offerId = event.params.offerId;
   offer.offerer = userId;
   offer.isSpecific = true;
-  let itemId = event.params.offerer.toHexString().concat("_").concat(event.params.offerId.toHexString()).concat("_blindOffers");
+  let itemId = event.params.offerer.toHexString().concat("_").concat(event.params.offerId.toHex()).concat("_blindOffers");
   
   let marketItem = new MarketItem(itemId);
   marketItem.block = event.block.timestamp;
@@ -137,7 +137,7 @@ export function handleBlindOffered(event: BlindOffered): void {
   marketItem.type = "blindOffers";
   marketItem.amount1155 = event.params.amount1155;
 
-  let dataId = event.params.collectionOffer.toHexString().concat("_").concat(event.params.tokenId.toHexString());
+  let dataId = event.params.collectionOffer.toHexString().concat("_").concat(event.params.tokenId.toHex());
   let nft = NFT.load(dataId);
   if(!nft){
     nft = new NFT(dataId);
@@ -185,7 +185,7 @@ export function handleBlindOffered(event: BlindOffered): void {
 }
 
 export function handleBlindOfferWithdrawn(event: BlindOfferWithdrawn): void {
-  let offerId = event.params.offerer.toHexString().concat(event.params.offerId.toHexString()).concat("_blindOffers");
+  let offerId = event.params.offerer.toHexString().concat(event.params.offerId.toHex()).concat("_blindOffers");
   let offer = new Offer(offerId);
   offer.active = true;
   offer.accepted = false;
@@ -193,7 +193,7 @@ export function handleBlindOfferWithdrawn(event: BlindOfferWithdrawn): void {
 }
 
 export function handleOfferAccepted(event: OfferAccepted): void {
-  let offerId = event.params.offerer.toHexString().concat(event.params.offerId.toHexString()).concat("_offers");
+  let offerId = event.params.offerer.toHexString().concat(event.params.offerId.toHex()).concat("_offers");
   let offer = new Offer(offerId);
   offer.active = true;
   offer.accepted = true;
@@ -201,7 +201,7 @@ export function handleOfferAccepted(event: OfferAccepted): void {
 }
 
 export function handleOfferRefunded(event: OfferRefunded): void {
-  let offerId = event.params.offerer.toHexString().concat(event.params.offerId.toHexString()).concat("_offers");
+  let offerId = event.params.offerer.toHexString().concat(event.params.offerId.toHex()).concat("_offers");
   let offer = new Offer(offerId);
   offer.active = true;
   offer.accepted = true;
